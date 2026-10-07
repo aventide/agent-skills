@@ -30,3 +30,7 @@ skills/<name>/
   assets/         templates and files used in output
   evals/          test prompts and pass/fail checks
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
