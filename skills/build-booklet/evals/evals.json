@@ -1,0 +1,107 @@
+{
+  "skill_name": "build-booklet",
+  "notes": "Each eval's `files` describes the repo or fixture to set up before running it. Fixtures aren't included; build a small repo that matches the description. Run every prompt with and without the skill and grade both against the assertions.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to build a terminal app in Go for logging my climbing sessions (grades, attempts, sends). Never used Go, comfortable with TypeScript. You can design the data model, but I want to design the stats/progress screens myself. Start me a booklet in ~/Dev/climb-log.",
+      "expected_output": "A new booklet: a cover with a preview, design ownership (data model by Claude with sign-off, stats screens as a user design section), sections 1-2 written out with 10-20 min steps and hint ladders, later sections only in the cover table, the fork after the design section visible, view.html rendered.",
+      "files": [],
+      "assertions": [
+        "The booklet shows the finished app concretely (an ASCII mock screen or sample terminal session) before any steps",
+        "Claude designed the data model and explicitly asked the user to sign off on it",
+        "The stats/progress screens are left to the user as an explicit design task, and Claude did not design them",
+        "Sections that depend on the stats design are not detailed, and the fork is visible in the sections table",
+        "Upcoming sections exist only as rows in the cover's sections table, not as stub files",
+        "Every detailed step names where the code goes and gives a concrete check of how to know it worked",
+        "Every detailed step has a hidden hint ladder with at least 2 levels",
+        "Hint 3 shows only the tricky part or an analogous example, never a complete drop-in solution for the step",
+        "Section 1 ends with something runnable in the app's own domain (not just a hello-world print)",
+        "Go concepts that are new to a TypeScript developer are called out where they're introduced",
+        "Claude did not write the app's Go logic for the user (no .go files with real implementation)",
+        "User-facing booklet text and the handover avoid LEGO/IKEA product terms (bag, box art, Allen key, set, sub-assembly)",
+        "The terminal handover message is short (about 250 words or fewer) and ends with how to start"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Pick back up on my falling-blocks puzzle game in ~/Dev/falling-blocks. My plan is in ~/Dev/falling-blocks-plan.md. Turn it into a booklet so I can keep going.",
+      "expected_output": "A booklet in the repo built from the existing plan and the code: an 'Already built' section, the plan's decisions kept, its design tickets as user-owned design sections, sections 1-2 written out, the rest grouped by phase in the cover table, view.html rendered, the CLAUDE.md paragraph offered.",
+      "files": [
+        "~/Dev/falling-blocks/: a small TypeScript + canvas/WebGL game repo (a few thousand lines, game state partly stored on sprites, a couple of real bugs, no tests yet)",
+        "~/Dev/falling-blocks-plan.md, outside the repo: a phased plan of about 20 build tickets (setup, bug fixes, refactors, screens) plus 3-4 design tickets, with a chosen package manager, test runner and target folder layout. Include one ticket whose 'done when' check can never fail, as a plan mistake to catch."
+      ],
+      "assertions": [
+        "Decisions from the existing plan are kept (package manager, test runner, phase/ticket order, target folder layout)",
+        "The booklet describes what's already built in the game, grounded in the actual code",
+        "The plan's design tickets remain user-owned design work rather than being decided by Claude",
+        "No game source code under src/ was modified",
+        "File paths referenced in the detailed steps exist in the repo (or are clearly marked as new)",
+        "Detailed steps are smaller than the original tickets (a ticket is split into multiple 10-20 min steps)",
+        "Every detailed step has a concrete check and a hidden hint ladder",
+        "The booklet folder has at most 4 Markdown files (cover plus detailed sections), with upcoming sections only in the cover table",
+        "The cover is light: under about 130 lines, and it names the plan file instead of restating it (no relative links out of the repo)",
+        "The plan mistake (the 'done when' check that can never fail) is caught and corrected in the booklet",
+        "User-facing booklet text and the handover avoid LEGO/IKEA product terms (bag, box art, Allen key, set, sub-assembly)",
+        "The terminal handover message is short (about 250 words or fewer) and ends with how to start",
+        "With more than 8 sections, the cover's sections table is grouped under phase headings",
+        "The handover summarizes long section lists by phase instead of listing every section",
+        "The handover offers to add a booklet paragraph to the repo's CLAUDE.md, and no CLAUDE.md was created or modified without the user's consent"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Add a /blog section with markdown posts to my portfolio site. I want to build it myself.",
+      "expected_output": "A feature booklet under booklet/features/<slug>/ with a before/after cover, the existing files it connects to, and 1-3 sections whose steps are grounded in the real stack. No blog code written for the user.",
+      "files": [
+        "A small portfolio site repo: React + an older Vite major version, a lightweight client-side router, Tailwind with a component plugin, a linter with import sorting, a nav component with separate desktop and mobile menus, and a few pages."
+      ],
+      "assertions": [
+        "The plan is grounded in the repo's real stack and names real existing files, including at least one version-specific gotcha",
+        "No blog implementation code was written into src/ for the user",
+        "The booklet shows the feature before/after or with a concrete picture of the finished blog",
+        "The booklet lives under booklet/features/<slug>/",
+        "Work is split into 1-3 sections of 10-20 minute steps",
+        "Every detailed step has a concrete check and a hidden hint ladder",
+        "Open design choices (e.g. markdown rendering library, post format) are put to the user as explicit questions in the handover",
+        "User-facing booklet text and the handover avoid LEGO/IKEA product terms (bag, box art, Allen key, set, sub-assembly)",
+        "The terminal handover message is short (about 250 words or fewer) and ends with how to start",
+        "The handover offers to add a booklet paragraph to CLAUDE.md, naming booklet/features/<slug>/ in the offer, and no CLAUDE.md was created or modified without the user's consent"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "check 1.1",
+      "expected_output": "Claude reads the feature booklet, inspects the uncommitted changes, finds the nav link missing from the mobile menu, doesn't tick the step or fix it, and points the user at it briefly.",
+      "files": [
+        "The eval 3 portfolio repo with a committed blog feature booklet. Step 1.1 asks for a /blog page plus a BLOG link in both the desktop and mobile menus. Uncommitted work adds the page, the route and the desktop link, but deliberately leaves out the mobile menu link."
+      ],
+      "assertions": [
+        "Step 1.1 is NOT ticked in the section file (its checkbox stays '- [ ] Done')",
+        "The response identifies that the BLOG link is missing from the mobile menu in the nav component",
+        "The response does not fix the code: no files under src/ were modified by Claude",
+        "The response acknowledges something specific the user got right (e.g. the route, the page, or the active-link check covering /blog/ subpaths)",
+        "The response is short (about 150 words or fewer) and tells the user to send 'check 1.1' again when ready",
+        "The pointer is at hint level (where to look / what's missing), not a pasted code fix"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "check section 1",
+      "expected_output": "Claude reviews both steps of Section 1, runs the linter itself, ticks 1.2, leaves 1.1 unticked, and reports both blockers (the missing mobile menu link and a lint failure) in one short reply as pointers, with no recap yet.",
+      "files": [
+        "The eval 4 setup, but Section 1 has two steps. Step 1.1's uncommitted work has two planted problems: the missing mobile menu link, and a new import placed out of sorted order so the repo's linter fails (verify the linter really flags it). Step 1.2 (posts loaded into the bundle as raw text) is implemented correctly. Dependencies are not installed."
+      ],
+      "assertions": [
+        "Step 1.2 is ticked ('- [x] Done') in the section file and step 1.1 is not",
+        "The reply reports the missing BLOG link in the mobile menu",
+        "The reply reports the lint failure (the out-of-order import) in the same reply",
+        "Claude actually ran the linter itself rather than asking the user to run it",
+        "No files under src/ were modified by Claude",
+        "Blockers are given as pointers (what and where), not pasted code fixes",
+        "The recap is not written yet, and the reply asks the user to send 'check section 1' again",
+        "The reply is short (about 180 words or fewer)"
+      ]
+    }
+  ]
+}

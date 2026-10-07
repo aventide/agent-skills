@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__BOOKLET_TITLE__ · Build Booklet</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --paper: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #6b6b70;
+  --line: #e2ddd2;
+  --brick: #ffcf00;      /* LEGO yellow: "new parts" highlight */
+  --brick-ink: #1d1d1f;
+  --red: #d01012;
+  --done: #237841;
+  --done-bg: #e5f3e9;
+  --changed: #0055bf;
+  --blueprint: #0b4f9c;
+  --blueprint-bg: #eaf2fc;
+  --blueprint-grid: rgba(11, 79, 156, .08);
+  --code-bg: #f6f4ef;
+  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17171a; --paper: #222226; --ink: #ececef; --muted: #9a9aa2; --line: #34343a;
+    --brick: #ffcf00; --brick-ink: #17171a; --red: #ff5a4f; --done: #5fd38a; --done-bg: #1e3326;
+    --changed: #6aa8ff; --blueprint: #8bbcff; --blueprint-bg: #1a2433; --blueprint-grid: rgba(139,188,255,.07);
+    --code-bg: #1b1b1f; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17171a; --paper: #222226; --ink: #ececef; --muted: #9a9aa2; --line: #34343a;
+  --brick: #ffcf00; --brick-ink: #17171a; --red: #ff5a4f; --done: #5fd38a; --done-bg: #1e3326;
+  --changed: #6aa8ff; --blueprint: #8bbcff; --blueprint-bg: #1a2433; --blueprint-grid: rgba(139,188,255,.07);
+  --code-bg: #1b1b1f; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+:root[data-theme="dark"] { color-scheme: dark; }
+nav.map { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--changed); }
+code, pre { font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+/* ---------- layout ---------- */
+.top {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px; background: var(--paper); border-bottom: 1px solid var(--line);
+}
+.top h1 { font-size: 15px; margin: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 120px; }
+.bar { flex: 1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar > div { height: 100%; background: var(--brick); border-radius: 99px; transition: width .3s; }
+.progress span { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.iconbtn { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+#menuBtn { display: none; }
+
+.wrap { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 53px); }
+nav.map { border-right: 1px solid var(--line); padding: 16px 12px; background: var(--paper); overflow-y: auto; position: sticky; top: 53px; height: calc(100vh - 53px); }
+main { padding: 32px 16px 120px; }
+.page { max-width: 760px; margin: 0 auto; background: var(--paper); border-radius: 16px; box-shadow: var(--shadow); padding: 40px 44px; position: relative; }
+.pager { max-width: 760px; margin: 18px auto 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.pager button { border: 0; background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; }
+.pager button:disabled { opacity: .3; cursor: default; }
+.pager .where { color: var(--muted); font-size: 13px; text-align: center; }
+
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: 1fr; }
+  nav.map { display: none; position: fixed; inset: 53px 0 0 0; height: auto; z-index: 4; border: 0; }
+  nav.map.open { display: block; }
+  #menuBtn { display: inline-block; }
+  .page { padding: 28px 20px; border-radius: 12px; }
+  main { padding: 16px 16px 96px; }
+}
+
+/* ---------- map ---------- */
+.map .item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px; cursor: pointer; color: var(--ink); text-decoration: none; }
+.map .item:hover { background: var(--bg); }
+.map .item.active { background: var(--bg); outline: 2px solid var(--brick); }
+.map .num { flex: none; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 14px; background: var(--line); color: var(--ink); }
+.map .sec.done .num { background: var(--done); color: var(--paper); }
+.map .sec.current .num { background: var(--brick); color: var(--brick-ink); }
+.map .sec.design .num, .map .sec.prototype .num { background: var(--blueprint-bg); color: var(--blueprint); border: 1.5px dashed var(--blueprint); }
+.map .sec.design.done .num, .map .sec.prototype.done .num { background: var(--done); color: var(--paper); border-style: solid; border-color: var(--done); }
+.map .label { min-width: 0; }
+.map .label b { display: block; font-size: 14px; font-weight: 650; line-height: 1.3; }
+.map .label small { color: var(--muted); font-size: 12px; }
+.map .dots { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px 50px; }
+.map .dot { width: 14px; height: 14px; border-radius: 4px; border: 2px solid var(--line); cursor: pointer; padding: 0; background: transparent; }
+.map .dot.done { background: var(--done); border-color: var(--done); }
+.map .dot.next { border-color: var(--brick); background: var(--brick); }
+.map .dot.recap { border-radius: 50%; }
+.map .dot.recap.written { background: var(--done); border-color: var(--done); }
+.map .dot.active { outline: 2px solid var(--ink); outline-offset: 1px; }
+.map h2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 8px 6px; }
+.map .rendered { color: var(--muted); font-size: 12px; margin: 20px 8px 0; }
+
+/* ---------- page content ---------- */
+.page h1 { font-size: 34px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.01em; }
+.page h2 { font-size: 26px; line-height: 1.2; margin: 0 0 16px; }
+.page h3 { font-size: 18px; margin: 28px 0 8px; }
+.page p, .page li { max-width: 68ch; }
+.page blockquote { margin: 16px 0; padding: 12px 16px; background: var(--bg); border-left: 4px solid var(--brick); border-radius: 0 10px 10px 0; }
+.page blockquote p { margin: 4px 0; }
+.page pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto; line-height: 1.5; }
+.page :not(pre) > code { background: var(--code-bg); border: 1px solid var(--line); padding: 1px 5px; border-radius: 5px; }
+.page table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 15px; display: block; overflow-x: auto; }
+.page th, .page td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.page th { font-size: 13px; color: var(--muted); font-weight: 600; }
+.page img { max-width: 100%; }
+.page .mermaid { margin: 20px 0; text-align: center; overflow-x: auto; }
+.page ul.contains-task-list, .page li.task-list-item { list-style: none; }
+
+/* highlighted bricks in file trees */
+.brick-new { background: var(--brick); color: var(--brick-ink); border-radius: 4px; padding: 0 4px; font-weight: 700; }
+.brick-changed { color: var(--changed); font-weight: 700; }
+
+/* hints */
+.page details { margin: 10px 0; border: 1.5px solid var(--line); border-radius: 12px; background: var(--paper); }
+.page details > summary { cursor: pointer; padding: 10px 14px; font-weight: 650; list-style: none; display: flex; align-items: center; gap: 10px; }
+.page details > summary::-webkit-details-marker { display: none; }
+.page details > summary::before { content: "?"; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); font-size: 13px; flex: none; }
+.page details[open] > summary::before { content: "!"; background: var(--brick); color: var(--brick-ink); }
+.page details[open] { border-color: var(--brick); }
+.page details > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.hints-label { margin-top: 28px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* cover */
+.page.cover { border-top: 10px solid var(--red); }
+.kicker { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+
+/* section title page */
+.secbadge { display: inline-flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.secbadge .n { width: 72px; height: 84px; border-radius: 14px 14px 22px 22px; background: var(--brick); color: var(--brick-ink); display: grid; place-items: center; font-size: 40px; font-weight: 900; position: relative; }
+.secbadge .n::before { content: ""; position: absolute; top: 8px; left: 12px; right: 12px; height: 3px; border-radius: 3px; background: rgba(0,0,0,.25); }
+.secbadge .t { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+.outlined-note { margin-top: 24px; padding: 14px 16px; border: 1.5px dashed var(--line); border-radius: 12px; color: var(--muted); }
+
+/* step page */
+.stephead { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+.stepnum { flex: none; min-width: 64px; height: 64px; padding: 0 10px; border-radius: 12px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 28px; font-weight: 900; letter-spacing: -.02em; }
+.stephead h2 { margin: 6px 0 0; }
+.stamp { position: absolute; top: 24px; right: 24px; transform: rotate(6deg); border: 3px solid var(--done); color: var(--done); border-radius: 10px; padding: 4px 12px; font-weight: 900; letter-spacing: .1em; font-size: 14px; background: var(--done-bg); }
+
+/* recap page */
+.page.recap { background: linear-gradient(var(--done-bg), var(--paper) 220px); }
+.page.recap .kicker { color: var(--done); }
+.page.recap.unwritten { background: var(--paper); }
+
+/* blueprint (design / prototype sections) */
+.page.blueprint {
+  background-color: var(--blueprint-bg);
+  background-image: linear-gradient(var(--blueprint-grid) 1px, transparent 1px), linear-gradient(90deg, var(--blueprint-grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.page.blueprint .secbadge .n { background: transparent; color: var(--blueprint); border: 3px dashed var(--blueprint); }
+.page.blueprint .secbadge .n::before { display: none; }
+.page.blueprint .stepnum { background: var(--blueprint); }
+.page.blueprint .kicker { color: var(--blueprint); }
+.page.blueprint blockquote { border-left-color: var(--blueprint); background: var(--paper); }
+
+/* sections in the map */
+.map .group { margin-bottom: 4px; }
+
+/* "Tell Claude" box */
+.tell { margin-top: 32px; padding: 16px 18px; border-radius: 12px; background: var(--bg); border: 1.5px solid var(--brick); }
+.tell.done { border-color: var(--done); background: var(--done-bg); }
+.tell.done .tell-label { color: var(--done); }
+.tell-label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; margin-bottom: 10px; }
+.tell-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.page .tell-cmd { font-size: 17px; font-weight: 700; padding: 6px 12px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); }
+.tell-note { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 60ch; }
+.tell-alt { margin-top: 12px; font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+button.copy { border: 0; background: var(--brick); color: var(--brick-ink); font: inherit; font-weight: 700; font-size: 14px; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+button.copy.small { font-size: 12px; padding: 3px 10px; background: var(--line); color: var(--ink); }
+button.copy.copied { background: var(--done); color: var(--paper); }
+
+/* progress: Claude-checked (solid) + self-ticked (lighter) */
+.bar { display: flex; }
+.bar > #barSelf { background: var(--done); opacity: .45; border-radius: 0 99px 99px 0; }
+.map .dot.self { border-color: var(--done); background: transparent; }
+
+/* "I've done this" self-tick */
+.selftick { margin-top: 28px; display: inline-flex; gap: 10px; align-items: center; font-weight: 600; cursor: pointer; }
+.selftick input { width: 20px; height: 20px; margin: 0; accent-color: var(--done); cursor: pointer; }
+.selftick.confirmed { color: var(--done); cursor: default; }
+.map h3.phase { font-size: 12px; font-weight: 700; color: var(--muted); margin: 14px 8px 4px; }
+.map .label b code { font-size: .9em; background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; }
+.secbadge.upcoming .n { background: var(--line); color: var(--ink); }
+.secbadge.done .n { background: var(--done); color: var(--paper); }
+.page.blueprint .secbadge.upcoming .n, .page.blueprint .secbadge.current .n { background: transparent; color: var(--blueprint); }
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="iconbtn" id="menuBtn" aria-label="Show section map">Map</button>
+  <h1 id="bookTitle"></h1>
+  <div class="progress"><div class="bar"><div id="barFill"></div><div id="barSelf"></div></div><span id="progressText"></span></div>
+  <button class="iconbtn" id="themeBtn" aria-label="Toggle theme">◐</button>
+</header>
+<div class="wrap">
+  <nav class="map" id="map"></nav>
+  <main>
+    <article class="page" id="page"></article>
+    <div class="pager">
+      <button id="prevBtn">← Back</button>
+      <div class="where" id="where"></div>
+      <button id="nextBtn">Next →</button>
+    </div>
+  </main>
+</div>
+
+<script id="booklet-data" type="application/json">__BOOKLET_DATA__</script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById("booklet-data").textContent);
+  const hasMarked = typeof window.marked !== "undefined";
+  const hasMermaid = typeof window.mermaid !== "undefined";
+
+  // ---------- theme ----------
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("booklet-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.getElementById("themeBtn").onclick = () => {
+    root.dataset.theme = isDark() ? "light" : "dark";
+    try { localStorage.setItem("booklet-theme", root.dataset.theme); } catch (e) {}
+    show(cur);
+  };
+
+  // ---------- pages ----------
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // Titles may contain `code`; render it instead of showing backticks.
+  const title = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+  const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const typeLabel = s => ({ design: "Design section", prototype: "Prototype section" }[s.type] || "Section");
+  const pages = [];
+  pages.push({ id: "cover", kind: "cover", title: data.cover.title, md: data.cover.intro });
+  data.cover.pages.forEach(p => pages.push({ id: "cover-" + slug(p.title), kind: "coverpage", title: p.title, md: p.md }));
+  data.sections.forEach(sec => {
+    pages.push({ id: "section-" + sec.num, kind: "section", sec, title: sec.title, md: sec.intro });
+    sec.pages.forEach(p => {
+      const id = p.kind === "step" ? "step-" + p.num : p.kind === "recap" ? "recap-" + sec.num : "section-" + sec.num + "-" + slug(p.title);
+      pages.push(Object.assign({ id, sec }, p));
+    });
+  });
+  const indexOf = id => pages.findIndex(p => p.id === id);
+
+  const steps = pages.filter(p => p.kind === "step");
+  document.getElementById("bookTitle").textContent = data.cover.title;
+  document.title = data.cover.title + " · Build Booklet";
+
+  // Steps the builder ticked themselves. Kept in this browser only; Claude's
+  // confirmed ticks live in the Markdown and win over these.
+  const tickKey = "booklet-ticks:" + data.cover.title;
+  let selfTicks = {};
+  try { selfTicks = JSON.parse(localStorage.getItem(tickKey) || "{}") || {}; } catch (e) {}
+  const isSelf = p => !p.done && !!selfTicks[p.num];
+  function setSelf(num, on) {
+    if (on) selfTicks[num] = true; else delete selfTicks[num];
+    try { localStorage.setItem(tickKey, JSON.stringify(selfTicks)); } catch (e) {}
+    updateProgress();
+  }
+  let nextStep = null;
+  function updateProgress() {
+    const done = steps.filter(p => p.done).length;
+    const mine = steps.filter(isSelf).length;
+    nextStep = steps.find(p => !p.done && !isSelf(p)) || null;
+    document.getElementById("barFill").style.width = (steps.length ? (100 * done / steps.length) : 0) + "%";
+    document.getElementById("barSelf").style.width = (steps.length ? (100 * mine / steps.length) : 0) + "%";
+    const outlined = data.sections.filter(s => s.status === "outlined").length;
+    document.getElementById("progressText").textContent =
+      `${done} / ${steps.length} steps checked` + (mine ? ` · ${mine} ticked by you` : "") +
+      (outlined ? ` · ${outlined} more section${outlined > 1 ? "s" : ""} to plan` : "");
+  }
+  updateProgress();
+
+  // ---------- markdown ----------
+  function md(src) {
+    if (!src) return "";
+    if (!hasMarked) return "<pre>" + esc(src) + "</pre>";
+    const div = document.createElement("div");
+    div.innerHTML = marked.parse(src, { gfm: true, breaks: true });
+    div.querySelectorAll("pre > code.language-mermaid").forEach(code => {
+      const m = document.createElement("div");
+      m.className = "mermaid";
+      m.textContent = code.textContent;
+      code.parentElement.replaceWith(m);
+    });
+    div.querySelectorAll("pre > code").forEach(code => {
+      if (!/←\s*(new|changed)/.test(code.textContent)) return;
+      code.innerHTML = code.innerHTML
+        .replace(/(←\s*new\b[^\n]*)/g, '<span class="brick-new">$1</span>')
+        .replace(/(←\s*changed\b[^\n]*)/g, '<span class="brick-changed">$1</span>');
+    });
+    const firstHint = [...div.querySelectorAll("details")].find(d => /hint/i.test(d.querySelector("summary")?.textContent || ""));
+    if (firstHint) {
+      const l = document.createElement("div");
+      l.className = "hints-label"; l.textContent = "Stuck? Open one hint at a time";
+      firstHint.before(l);
+    }
+    return div.innerHTML;
+  }
+
+  // "Tell Claude" box: a prompt to copy into the Claude session.
+  function tell(cmd, note, extra) {
+    return `<div class="tell"><div class="tell-label">Tell Claude</div>
+      <div class="tell-row"><code class="tell-cmd">${esc(cmd)}</code><button class="copy" data-copy="${esc(cmd)}">Copy</button></div>
+      ${note ? `<div class="tell-note">${note}</div>` : ""}
+      ${extra ? `<div class="tell-alt">${extra}</div>` : ""}</div>`;
+  }
+  const altCmd = cmd => `<code>${esc(cmd)}</code> <button class="copy small" data-copy="${esc(cmd)}">Copy</button>`;
+
+  function render(p) {
+    const blueprint = p.sec && (p.sec.type === "design" || p.sec.type === "prototype");
+    let cls = "page", html = "";
+    if (p.kind === "cover") {
+      cls += " cover";
+      html = `<div class="kicker">Build booklet</div><h1>${esc(p.title)}</h1>${md(p.md)}` +
+             (nextStep ? tell("next", `Paste this into Claude to see your next step (${esc(nextStep.num)}: ${esc(nextStep.title)}).`) : "");
+    } else if (p.kind === "coverpage") {
+      html = `<div class="kicker">${esc(data.cover.title)}</div><h2>${esc(p.title)}</h2>${md(p.md)}`;
+    } else if (p.kind === "section") {
+      const s = p.sec;
+      const stepCount = s.pages.filter(x => x.kind === "step").length;
+      const badge = s.status === "done" ? "done" : s.current ? "current" : "upcoming";
+      html = `<div class="secbadge ${badge}"><div class="n">${s.num}</div><div class="t">${typeLabel(s)}${stepCount ? " · " + stepCount + " steps" : ""}</div></div>
+              <h1>${title(s.title)}</h1>${md(p.md)}`;
+      if (s.status === "outlined") {
+        html += `<div class="outlined-note">This section's steps get written when you get close, against your code as it is by then.</div>` +
+                (s.current || (nextStep == null) || data.sections.find(x => x.status !== "done") === s
+                  ? tell("next", `Claude will write this section's steps and show you the first one.`) : "");
+      }
+    } else if (p.kind === "step") {
+      const secSteps = p.sec.pages.filter(x => x.kind === "step");
+      const isLast = secSteps[secSteps.length - 1] === p.sec.pages.find(x => x.kind === "step" && x.num === p.num);
+      html = (p.done ? `<div class="stamp">DONE</div>` : "") +
+             `<div class="kicker">${typeLabel(p.sec)} ${p.sec.num} · ${title(p.sec.title)}</div>
+              <div class="stephead"><div class="stepnum">${esc(p.num)}</div><h2>${title(p.title)}</h2></div>${md(p.md)}`;
+      if (p.done) {
+        html += `<label class="selftick confirmed"><input type="checkbox" checked disabled> Checked by Claude</label>`;
+      } else {
+        html += `<label class="selftick"><input type="checkbox" data-step="${esc(p.num)}" ${isSelf(p) ? "checked" : ""}> I've done this</label>`;
+        if (isLast) {
+          html += tell(`check section ${p.sec.num}`,
+            `This is the last step in Section ${p.sec.num}. When you've finished, paste this into Claude. It reviews every step in the section, ticks them off, and writes your recap.`);
+        }
+      }
+    } else if (p.kind === "recap") {
+      cls += " recap" + (p.written ? "" : " unwritten");
+      html = `<div class="kicker">${p.written ? "Recap · what you built" : "Recap"}</div><h2>${esc(p.title)}</h2>` +
+             (p.written ? md(p.md) : `<div class="outlined-note">This page gets written from your actual code once every step in this section is done.</div>` +
+               tell(`check section ${p.sec.num}`, `Finished every step in this section? Paste this into Claude. It reviews the section, ticks the steps off, and writes this recap.`));
+    } else {
+      html = `<div class="kicker">${typeLabel(p.sec)} ${p.sec.num}</div><h2>${esc(p.title)}</h2>${md(p.md)}`;
+    }
+    if (blueprint) cls += " blueprint";
+    return { cls, html };
+  }
+
+  // ---------- map ----------
+  const mapEl = document.getElementById("map");
+  function renderMap(active) {
+    const a = pages[active];
+    let h = `<h2>Booklet</h2><a class="item ${a.kind === "cover" || a.kind === "coverpage" ? "active" : ""}" data-go="cover"><div class="num">◆</div><div class="label"><b>Cover</b><small>Preview & parts</small></div></a><h2>Sections</h2>`;
+    let lastPhase = null;
+    data.sections.forEach(s => {
+      if (s.phase && s.phase !== lastPhase) { h += `<h3 class="phase">${esc(s.phase)}</h3>`; lastPhase = s.phase; }
+      const st = s.status === "done" ? "Done" : s.current ? "In Progress" : "Upcoming";
+      const typeName = { design: "Design", prototype: "Prototype" }[s.type];
+      const cls = ["item", "sec", s.type, s.status === "done" ? "done" : "", s.current ? "current" : "", a.sec === s && a.kind === "section" ? "active" : ""].join(" ");
+      h += `<div class="group"><a class="${cls}" data-go="section-${s.num}"><div class="num">${s.num}</div><div class="label"><b>${title(s.title)}</b><small>${typeName ? typeName + " · " : ""}${st}</small></div></a>`;
+      const dots = s.pages.filter(x => x.kind === "step" || x.kind === "recap");
+      if (dots.length) {
+        h += `<div class="dots">` + dots.map(x => {
+          const id = x.kind === "step" ? "step-" + x.num : "recap-" + s.num;
+          const c = ["dot", x.kind === "recap" ? "recap" : "", x.done ? "done" : "", x.kind === "step" && isSelf(x) ? "self" : "", x.written ? "written" : "", nextStep && nextStep.id === id ? "next" : "", a.id === id ? "active" : ""].join(" ");
+          return `<button class="${c}" data-go="${id}" title="${esc(x.kind === "step" ? x.num + " " + x.title : "Recap")}"></button>`;
+        }).join("") + `</div>`;
+      }
+      h += `</div>`;
+    });
+    if (data.features && data.features.length) {
+      h += `<h2>Features</h2>` + data.features.map(f => `<a class="item" href="${encodeURI(f)}/view.html"><div class="num">+</div><div class="label"><b>${esc(f.split("/").pop())}</b></div></a>`).join("");
+    }
+    h += `<div class="rendered">Rendered ${esc(data.rendered)}</div>`;
+    mapEl.innerHTML = h;
+    mapEl.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { go(el.dataset.go); mapEl.classList.remove("open"); });
+  }
+  document.getElementById("menuBtn").onclick = () => mapEl.classList.toggle("open");
+
+  // ---------- self-ticks ----------
+  document.addEventListener("change", e => {
+    const box = e.target.closest("input[data-step]");
+    if (!box) return;
+    setSelf(box.dataset.step, box.checked);
+    renderMap(cur);
+  });
+
+  // ---------- copy buttons ----------
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button.copy");
+    if (!b) return;
+    const text = b.dataset.copy;
+    const ok = () => { const o = b.textContent; b.textContent = "Copied"; b.classList.add("copied"); setTimeout(() => { b.textContent = o; b.classList.remove("copied"); }, 1400); };
+    if (navigator.clipboard && window.isSecureContext !== false) {
+      navigator.clipboard.writeText(text).then(ok, () => fallback(text, ok));
+    } else fallback(text, ok);
+  });
+  function fallback(text, ok) {
+    const t = document.createElement("textarea");
+    t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); ok(); } catch (e) {}
+    t.remove();
+  }
+
+  // ---------- navigation ----------
+  let cur = 0;
+  const pageEl = document.getElementById("page");
+  function show(i) {
+    cur = Math.max(0, Math.min(pages.length - 1, i));
+    const p = pages[cur];
+    const r = render(p);
+    pageEl.className = r.cls;
+    pageEl.innerHTML = r.html;
+    document.getElementById("prevBtn").disabled = cur === 0;
+    document.getElementById("nextBtn").disabled = cur === pages.length - 1;
+    document.getElementById("where").textContent = `Page ${cur + 1} of ${pages.length}`;
+    if (location.hash.slice(1) !== p.id) history.replaceState(null, "", "#" + p.id);
+    renderMap(cur);
+    window.scrollTo(0, 0);
+    if (hasMermaid) {
+      try {
+        mermaid.initialize({ startOnLoad: false, theme: isDark() ? "dark" : "neutral", securityLevel: "strict" });
+        mermaid.run({ nodes: pageEl.querySelectorAll(".mermaid") }).catch(() => {});
+      } catch (e) {}
+    }
+  }
+  function go(id) { const i = indexOf(id); if (i >= 0) show(i); }
+  document.getElementById("prevBtn").onclick = () => show(cur - 1);
+  document.getElementById("nextBtn").onclick = () => show(cur + 1);
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("input, textarea")) return;
+    if (e.key === "ArrowRight") show(cur + 1);
+    if (e.key === "ArrowLeft") show(cur - 1);
+  });
+  window.addEventListener("hashchange", () => go(location.hash.slice(1)));
+
+  // Start where the URL says, else on the next step to build, else the cover.
+  const fromHash = indexOf(location.hash.slice(1));
+  show(fromHash >= 0 ? fromHash : nextStep ? indexOf(nextStep.id) : 0);
+})();
+</script>
+</body>
+</html>
