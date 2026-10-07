@@ -45,7 +45,12 @@ To render the HTML view (one page at a time, hints you click to reveal, a "you a
 python3 <this-skill-dir>/scripts/render_booklet.py <booklet-dir> [--open]
 ```
 
-Re-render whenever you change booklet files. Use `--open` the first time, or when the user asks to see it.
+Re-render whenever you change booklet files. Then make sure the user can always get to the booklet:
+
+- **When you create a booklet**, render with `--open` so it opens in their browser.
+- **Whenever you show the booklet's location, give the full absolute path** to `view.html` (e.g. `/home/you/project/booklet/view.html`), not `booklet/view.html`. The terminal turns full paths into clickable links, and that link still works if the browser didn't open (SSH, containers, no display).
+- **In the first booklet reply of a new session** (usually `next`), end with that link once, so they can reopen the booklet.
+- **After any change to the booklet** (steps ticked, a recap written, a section written or re-planned), end with "Refresh the booklet to see it" plus the link. Don't use `--open` again unless they ask; they already have the tab.
 
 ## Sizing: sections and steps
 
@@ -177,7 +182,7 @@ After creating or updating a booklet, the terminal message is a short handover, 
 - One sentence of preview.
 - The sections as a compact list (number and name only, marking design sections and forks). With more than about 8 sections, name only the first two and summarize the rest by phase ("then 6 sections separating the core logic from the UI, 5 on screens and settings…"). The full list is in the booklet.
 - Anything that needs their decision or sign-off, as a short list of questions. This is the one part not to cut. Include the `CLAUDE.md` offer here if the repo doesn't have the booklet paragraph yet.
-- How to open the booklet (`booklet/view.html`) and how to start: "Paste `next` here when you're ready."
+- The full path to `view.html` as a link (see "The booklet on disk"), and how to start: "Paste `next` here when you're ready."
 
 ## Tone
 
