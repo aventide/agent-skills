@@ -60,23 +60,23 @@ code, pre { font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Conso
 }
 .top h1 { font-size: 15px; margin: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .progress { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 120px; }
-.bar { flex: 1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar { flex: 1; min-width: 48px; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
 .bar > div { height: 100%; background: var(--brick); border-radius: 99px; transition: width .3s; }
-.progress span { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.progress span { font-size: 13px; color: var(--muted); white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .iconbtn { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
 #menuBtn { display: none; }
 
-.wrap { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 53px); }
+.wrap { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: calc(100vh - 53px); }
 nav.map { border-right: 1px solid var(--line); padding: 16px 12px; background: var(--paper); overflow-y: auto; position: sticky; top: 53px; height: calc(100vh - 53px); }
 main { padding: 32px 16px 120px; }
-.page { max-width: 760px; margin: 0 auto; background: var(--paper); border-radius: 16px; box-shadow: var(--shadow); padding: 40px 44px; position: relative; }
+.page { max-width: 760px; margin: 0 auto; background: var(--paper); border-radius: 16px; box-shadow: var(--shadow); padding: 40px 44px; position: relative; overflow-wrap: break-word; }
 .pager { max-width: 760px; margin: 18px auto 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .pager button { border: 0; background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; }
 .pager button:disabled { opacity: .3; cursor: default; }
 .pager .where { color: var(--muted); font-size: 13px; text-align: center; }
 
 @media (max-width: 860px) {
-  .wrap { grid-template-columns: 1fr; }
+  .wrap { grid-template-columns: minmax(0, 1fr); }
   nav.map { display: none; position: fixed; inset: 53px 0 0 0; height: auto; z-index: 4; border: 0; }
   nav.map.open { display: block; }
   #menuBtn { display: inline-block; }
@@ -149,6 +149,7 @@ main { padding: 32px 16px 120px; }
 
 /* step page */
 .stephead { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+.stephead h2 { min-width: 0; }
 .stepnum { flex: none; min-width: 64px; height: 64px; padding: 0 10px; border-radius: 12px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 28px; font-weight: 900; letter-spacing: -.02em; }
 .stephead h2 { margin: 6px 0 0; }
 .stamp { position: absolute; top: 24px; right: 24px; transform: rotate(6deg); border: 3px solid var(--done); color: var(--done); border-radius: 10px; padding: 4px 12px; font-weight: 900; letter-spacing: .1em; font-size: 14px; background: var(--done-bg); }
