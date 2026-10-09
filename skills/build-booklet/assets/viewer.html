@@ -73,6 +73,8 @@ main { padding: 32px 16px 120px; }
 .pager { max-width: 760px; margin: 18px auto 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .pager button { border: 0; background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; }
 .pager button:disabled { opacity: .3; cursor: default; }
+button.continue { margin-top: 24px; border: 0; background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; text-align: left; max-width: 100%; }
+.page button.continue code { background: transparent; color: inherit; border-color: currentColor; }
 .pager .where { color: var(--muted); font-size: 13px; text-align: center; }
 
 @media (max-width: 860px) {
@@ -327,8 +329,12 @@ button.copy.copied { background: var(--done); color: var(--paper); }
     let cls = "page", html = "";
     if (p.kind === "cover") {
       cls += " cover";
+      // Once they've started, offer a jump to their next step. A fresh booklet
+      // has none, so Next walks them through the preview first.
+      const started = steps.some(x => x.done || isSelf(x));
       html = `<div class="kicker">Build booklet</div><h1>${esc(p.title)}</h1>${md(p.md)}` +
-             (nextStep ? tell("next", `Paste this into your assistant to see your next step (${esc(nextStep.num)}: ${esc(nextStep.title)}).`) : "");
+             (nextStep && started ? `<button class="continue" data-go="${esc(nextStep.id)}">Continue: Step ${esc(nextStep.num)} ${title(nextStep.title)} →</button>` : "") +
+             (nextStep ? tell("next", `Paste this into your assistant to see your next step (${esc(nextStep.num)}: ${title(nextStep.title)}).`) : "");
     } else if (p.kind === "coverpage") {
       html = `<div class="kicker">${esc(data.cover.title)}</div><h2>${esc(p.title)}</h2>${md(p.md)}`;
     } else if (p.kind === "section") {
@@ -408,6 +414,12 @@ button.copy.copied { background: var(--done); color: var(--paper); }
     renderMap(cur);
   });
 
+  // ---------- in-page jumps (the cover's Continue button) ----------
+  document.addEventListener("click", e => {
+    const b = e.target.closest("#page [data-go]");
+    if (b) go(b.dataset.go);
+  });
+
   // ---------- copy buttons ----------
   document.addEventListener("click", e => {
     const b = e.target.closest("button.copy");
@@ -458,9 +470,9 @@ button.copy.copied { background: var(--done); color: var(--paper); }
   });
   window.addEventListener("hashchange", () => go(location.hash.slice(1)));
 
-  // Start where the URL says, else on the next step to build, else the cover.
+  // Start where the URL says (a refresh keeps your page), else on the cover.
   const fromHash = indexOf(location.hash.slice(1));
-  show(fromHash >= 0 ? fromHash : nextStep ? indexOf(nextStep.id) : 0);
+  show(fromHash >= 0 ? fromHash : 0);
 })();
 </script>
 </body>
