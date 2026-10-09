@@ -32,7 +32,11 @@ Keep it readable in two or three minutes. The preview gets the space; the rest i
 ```markdown
 # <Project name>
 
-> <One-line hook: what it is, in words that make the builder want it.>
+> <One-line hook that states the objective, naming the actual thing rather than a category, in words that make the builder want it. E.g. "Build a Wordle clone while learning how Svelte turns state into a screen", not "Build a small word game…".>
+
+<One or two sentences on what that thing is and what it does. If it's based on something real that needs more context, end with a link to a page online that explains it (e.g. its Wikipedia article). If it's an original idea, describe it in its own terms; there's nothing to link.>
+
+<One to three sentences on the tech: what kind of app it is (web app, CLI, …), the main tools, and the job each does in this project, in plain words. An overview only; Parts & tools has a line per tool.>
 
 ## Preview
 
@@ -44,7 +48,8 @@ Keep it readable in two or three minutes. The preview gets the space; the rest i
 
 ## Parts & tools
 
-**You'll use:** <Library>, <Library>, <Tool> (one line each only if the role isn't obvious)
+**You'll use:**
+- **<Tool>:** <what it is, and what it does in this project>. One short line for tools the builder knows; a sentence more for new ones, marked *(new to you)*.
 
 **New to you:**
 - **<Concept>** (Section N): <one line>
@@ -261,7 +266,7 @@ A **prototype section** uses `> **Type:** prototype`, adds `> **Question:** <the
 ## 5. Feature booklet cover (`booklet/features/<slug>/cover.md`)
 
 Same as `cover.md`, with these changes:
-- The title is the feature name. The hook says what the feature adds.
+- The title is the feature name. The hook names the feature and what it adds, and the paragraph below it says what the feature is, the same way. The tech paragraph says how the feature plugs into the existing stack and names any new tools.
 - The preview shows **before → after** (what the user sees or does today vs. with the feature).
 - Add **Connects to:** listing the existing files/modules the feature plugs into.
 - Usually 1–3 sections. Skip "Builder notes" if the main booklet has them; link to it instead.

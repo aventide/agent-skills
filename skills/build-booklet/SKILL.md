@@ -74,6 +74,8 @@ This keeps the booklet honest. Detailed steps written weeks in advance against c
 
 The cover is the first thing the user sees, and it should make them want to start, not feel like homework. Aim for something they can read in two or three minutes:
 
+- Open with the objective as the hook, naming the actual thing ("Build a Wordle clone…", not "Build a small word game…"), then one or two sentences on what that thing is. If it needs more context, link to a page online that explains it rather than writing more. Follow that with one to three sentences on the tech: what kind of app it is and what each main tool does in it.
+- In Parts & tools, give every tool a line saying what it is and what it does in this project, not just its name.
 - The preview gets the space: one concrete picture (an ASCII screen, a sample terminal session, a before/after) and at most one diagram.
 - Everything else is short lists and one table. With more than about 8 sections, group the sections table under short phase headings (one table per phase) so it reads as a path, not a wall.
 - If the project has a lot of history (an audit, a long tickets file), link to it rather than restating it.
