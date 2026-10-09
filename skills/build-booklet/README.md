@@ -21,6 +21,16 @@ Then it coaches you while you build. Paste these into your coding agent:
 
 Say "stop using the booklet" to remove that note. The `booklet/` folder stays, so you can pick it back up later or delete it yourself.
 
+## Why
+
+When I work with an AI agent, it likely knows *exactly* what needs to be built. But sometimes I don't want it to just build it. I want to build it myself, in digestible steps, and enjoy the process. This skill comes from two ideas.
+
+**LEGO instruction booklets.** They don't just show you how to snap bricks together. They start with a preview of what you're building, and after each part there's a review of what you just built, a piece of the whole you'll combine with the other pieces. I wanted that for code: always knowing what I'm making and what comes next, without getting lost.
+
+**The joy of building your own furniture.** People get real satisfaction from putting together their own IKEA furniture, even though it's less convenient than having it built for them. There's a bit of struggle and some learning along the way, and you have the tools you need to do the job. But the struggle can't be so much that you give up. That's why there's a hint ladder for when I'm stuck, and why the tedious parts come done for me.
+
+What I'm after is a flow state: enough challenge to stay engaged, small enough steps that I never feel overwhelmed.
+
 ## Use
 
 ```text
