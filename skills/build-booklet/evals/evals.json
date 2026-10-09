@@ -13,6 +13,7 @@
         "The stats/progress screens are left to the user as an explicit design task, and Claude did not design them",
         "Sections that depend on the stats design are not detailed, and the fork is visible in the sections table",
         "Upcoming sections exist only as rows in the cover's sections table, not as stub files",
+        "booklet/README.md exists and explains the folder to someone who doesn't know the skill",
         "Every detailed step names where the code goes and gives a concrete check of how to know it worked",
         "Every detailed step has a hidden hint ladder with at least 2 levels",
         "Hint 3 shows only the tricky part or an analogous example, never a complete drop-in solution for the step",
@@ -39,14 +40,14 @@
         "File paths referenced in the detailed steps exist in the repo (or are clearly marked as new)",
         "Detailed steps are smaller than the original tickets (a ticket is split into multiple 10-20 min steps)",
         "Every detailed step has a concrete check and a hidden hint ladder",
-        "The booklet folder has at most 4 Markdown files (cover plus detailed sections), with upcoming sections only in the cover table",
+        "The booklet folder has at most 5 Markdown files (README, cover and detailed sections), with upcoming sections only in the cover table",
         "The cover is light: under about 130 lines, and it names the plan file instead of restating it (no relative links out of the repo)",
         "The plan mistake (the 'done when' check that can never fail) is caught and corrected in the booklet",
         "User-facing booklet text and the handover avoid LEGO/IKEA product terms (bag, box art, Allen key, set, sub-assembly)",
         "The terminal handover message is short (about 250 words or fewer) and ends with how to start",
         "With more than 8 sections, the cover's sections table is grouped under phase headings",
         "The handover summarizes long section lists by phase instead of listing every section",
-        "The handover offers to add a booklet paragraph to the repo's CLAUDE.md, and no CLAUDE.md was created or modified without the user's consent"
+        "The handover offers to add a booklet paragraph to the repo's agent instruction file(s) (CLAUDE.md and/or AGENTS.md), and no instruction file was created or modified without the user's consent"
       ]
     },
     {
@@ -66,7 +67,7 @@
         "Open design choices (e.g. markdown rendering library, post format) are put to the user as explicit questions in the handover",
         "User-facing booklet text and the handover avoid LEGO/IKEA product terms (bag, box art, Allen key, set, sub-assembly)",
         "The terminal handover message is short (about 250 words or fewer) and ends with how to start",
-        "The handover offers to add a booklet paragraph to CLAUDE.md, naming booklet/features/<slug>/ in the offer, and no CLAUDE.md was created or modified without the user's consent"
+        "The handover offers to add a booklet paragraph to the repo's agent instruction file(s) (CLAUDE.md and/or AGENTS.md), naming booklet/features/<slug>/ in the offer, and no instruction file was created or modified without the user's consent"
       ]
     },
     {

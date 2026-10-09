@@ -28,6 +28,7 @@ The booklet lives in the project repo so it's versioned and you can pick up wher
 
 ```text
 <repo>/booklet/
+  README.md                 what this folder is, for anyone who comes across it
   cover.md                  preview, parts & tools, the sections table, builder notes, changelog
   section-01-<slug>.md      one file per *detailed* section: intro, steps, recap
   section-02-<slug>.md
@@ -37,9 +38,11 @@ The booklet lives in the project repo so it's versioned and you can pick up wher
 
 Outlined sections (not yet detailed) exist **only as rows in the cover's sections table**, not as files. The renderer reads that table and shows them in the map. A section file appears when you write its steps. This keeps the folder small: a user opening it should see a handful of files, not twenty placeholders.
 
+Whenever `booklet/` has no `README.md` (you just created the folder, for the main booklet or a feature booklet, or you're working in an older booklet without one), write it from the template in the format reference. It tells a collaborator who has never heard of the skill what the folder is. It's written once and never changes, and feature folders don't get their own.
+
 Read `references/booklet-format.md` before writing or editing any booklet file. It has the exact templates. The renderer depends on the heading, table and checkbox conventions, and the user benefits from every booklet looking the same.
 
-To render the HTML view (one page at a time, hints you click to reveal, a "you are here" map, and a copyable "tell Claude" prompt on each step):
+To render the HTML view (one page at a time, hints you click to reveal, a "you are here" map, and a copyable "Tell your assistant" prompt on each step):
 
 ```bash
 python3 <this-skill-dir>/scripts/render_booklet.py <booklet-dir> [--open]
@@ -134,7 +137,7 @@ A smaller booklet in `booklet/features/<slug>/`: a cover (a before/after preview
 
 ### D. Companion mode: during the build
 
-These requests come in mid-build, often pasted straight from the booklet's "Tell Claude" box. Keep responses short and in the terminal. The user is in flow, so don't make them read an essay: aim for under ~150 words unless you're writing a recap.
+These requests come in mid-build, often pasted straight from the booklet's "Tell your assistant" box. Keep responses short and in the terminal. The user is in flow, so don't make them read an essay: aim for under ~150 words unless you're writing a recap.
 
 **The rhythm is one review per section, not per step.** Each step has its own observable **Check** that the user confirms themselves, and they tick an "I've done this" box in the viewer (stored in their browser, so you can't see it). At the end of a section they paste `check section N`, and that's the main review. Per-step `check 1.2` is optional, for when they're unsure. This keeps them in flow for a whole sitting and makes the recap the payoff.
 
@@ -149,20 +152,22 @@ These requests come in mid-build, often pasted straight from the booklet's "Tell
 
 - **Finishing a section**: when every step of a section is ticked, write its **recap** (see the format reference) from the **actual code**, not the plan: what now exists, how it connects (a diagram with this section's part highlighted), what they learned, something to try, and a peek at the next section. If the next section is only outlined, write it now. Re-render. This is the moment of satisfaction, so make it feel like one, without overdoing it.
 - **Re-plan**: when the build drifts (a new idea, a different approach, an abandoned feature), update the remaining steps and sections, add a dated line to the cover's changelog, and briefly tell the user what changed. Don't silently rewrite steps they've already completed.
-- **Finishing the whole booklet**: when the last section's recap is written, celebrate the finished project briefly, and if `CLAUDE.md` has the booklet section, offer to remove it so later sessions stop treating the repo as hand-built.
+- **Finishing the whole booklet**: when the last section's recap is written, celebrate the finished project briefly, and if any instruction file (`CLAUDE.md`, `AGENTS.md`) has the booklet section, offer to remove it from each one so later sessions stop treating the repo as hand-built.
+- **Stopping booklet mode** ("stop using the booklet", "I'm done with booklet mode"): remove the `## Build booklet` section from every instruction file that has it, and leave the rest of each file alone. Don't touch `booklet/`. Tell them in a line or two that the booklet stays in the repo, so they can pick it back up later with `next` or delete the folder themselves.
 
 **Actually run the checks.** A review that says "I couldn't run the linter, please check" hands work back to the user. If dependencies aren't installed, look for a lightweight way first: the tool's pinned version via `npx <tool>@<version>` / `pipx run` / `go run`, running a single test file, or a dry-run build in a scratch copy. Only when a check truly needs the user (a browser, a device, a manual interaction) do you ask them to confirm what they saw, and then say exactly what to look for. Never tick on faith.
 
-## Keep every session in booklet mode (CLAUDE.md)
+## Keep every session in booklet mode (instruction files)
 
-A skill only loads when a request looks like it matches. In a fresh session, a casual first message ("is my nav change right?") might not load it, and then you'd review the code like normal, or even fix it, which is the opposite of what the user wants. `CLAUDE.md` in the repo root is read at the start of every session, so one short paragraph there makes every session know about the booklet from the first message.
+A skill only loads when a request looks like it matches. In a fresh session, a casual first message ("is my nav change right?") might not load it, and then you'd review the code like normal, or even fix it, which is the opposite of what the user wants. Coding agents read an instruction file in the repo root at the start of every session: Claude Code reads `CLAUDE.md`, and most other agents (Codex, Cursor, Copilot) read `AGENTS.md`. One short paragraph there makes every session know about the booklet from the first message.
 
 When you create a booklet, or work in a repo that has one but no such paragraph, **offer** to add it (it's a done-for-you item, but it edits a repo file, so ask; don't just do it). Ask in the handover's questions. If they say yes:
 
-- If `CLAUDE.md` doesn't exist, create it with just this section. If it does, append the section and leave everything else alone.
+- Add the section to **every** instruction file the repo root already has (`CLAUDE.md`, `AGENTS.md`, or both), so whichever agent they run sees it. Append it and leave everything else in the file alone.
+- If neither exists, create the one your own agent reads at startup (`CLAUDE.md` for Claude Code, `AGENTS.md` for most others) with just this section.
 - For a feature booklet, point at `booklet/features/<slug>/` instead.
-- Name the exact path in the offer itself, so they know what they're agreeing to: "Want me to add a short note to `CLAUDE.md` pointing at `booklet/features/blog/`, so new sessions coach you instead of writing code?"
-- Mention once that a committed `CLAUDE.md` applies to anyone using Claude Code in the repo. If they'd rather keep it private, add `CLAUDE.md` to `.git/info/exclude` (a local-only ignore).
+- Name the exact file(s) and path in the offer itself, so they know what they're agreeing to: "Want me to add a short note to `AGENTS.md` and `CLAUDE.md` pointing at `booklet/features/blog/`, so new sessions coach you instead of writing code?"
+- Mention once that a committed instruction file applies to anyone using that agent in the repo. If they'd rather keep it private, add the file to `.git/info/exclude` (a local-only ignore).
 
 ```markdown
 ## Build booklet
@@ -170,7 +175,10 @@ When you create a booklet, or work in a repo that has one but no such paragraph,
 I'm building this project by hand, following `booklet/` (open `booklet/view.html`).
 For help, review, or "what's next" questions, use the build-booklet skill:
 point me in the right direction, don't write the code unless I ask, and tick
-steps off in the booklet when they pass.
+steps off in the booklet when they pass. If I say I'm done with the booklet,
+remove this section. If my first message in a session isn't a booklet command
+(`next`, `hint`, `check`), start your reply with one line saying this repo is in
+booklet mode and that I can say "stop using the booklet" to turn it off.
 ```
 
 With that paragraph in place, treat any request in the repo through the booklet. A review question is a check. "Add X" means asking whether they want steps for it or want you to just write it.
@@ -181,7 +189,7 @@ After creating or updating a booklet, the terminal message is a short handover, 
 
 - One sentence of preview.
 - The sections as a compact list (number and name only, marking design sections and forks). With more than about 8 sections, name only the first two and summarize the rest by phase ("then 6 sections separating the core logic from the UI, 5 on screens and settings…"). The full list is in the booklet.
-- Anything that needs their decision or sign-off, as a short list of questions. This is the one part not to cut. Include the `CLAUDE.md` offer here if the repo doesn't have the booklet paragraph yet.
+- Anything that needs their decision or sign-off, as a short list of questions. This is the one part not to cut. Include the instruction-file offer here if the repo doesn't have the booklet paragraph yet.
 - The full path to `view.html` as a link (see "The booklet on disk"), and how to start: "Paste `next` here when you're ready."
 
 ## Tone

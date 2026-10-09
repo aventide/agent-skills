@@ -173,7 +173,7 @@ main { padding: 32px 16px 120px; }
 /* sections in the map */
 .map .group { margin-bottom: 4px; }
 
-/* "Tell Claude" box */
+/* "Tell your assistant" box */
 .tell { margin-top: 32px; padding: 16px 18px; border-radius: 12px; background: var(--bg); border: 1.5px solid var(--brick); }
 .tell.done { border-color: var(--done); background: var(--done-bg); }
 .tell.done .tell-label { color: var(--done); }
@@ -186,7 +186,7 @@ button.copy { border: 0; background: var(--brick); color: var(--brick-ink); font
 button.copy.small { font-size: 12px; padding: 3px 10px; background: var(--line); color: var(--ink); }
 button.copy.copied { background: var(--done); color: var(--paper); }
 
-/* progress: Claude-checked (solid) + self-ticked (lighter) */
+/* progress: assistant-checked (solid) + self-ticked (lighter) */
 .bar { display: flex; }
 .bar > #barSelf { background: var(--done); opacity: .45; border-radius: 0 99px 99px 0; }
 .map .dot.self { border-color: var(--done); background: transparent; }
@@ -260,7 +260,7 @@ button.copy.copied { background: var(--done); color: var(--paper); }
   document.getElementById("bookTitle").textContent = data.cover.title;
   document.title = data.cover.title + " · Build Booklet";
 
-  // Steps the builder ticked themselves. Kept in this browser only; Claude's
+  // Steps the builder ticked themselves. Kept in this browser only; the assistant's
   // confirmed ticks live in the Markdown and win over these.
   const tickKey = "booklet-ticks:" + data.cover.title;
   let selfTicks = {};
@@ -312,9 +312,9 @@ button.copy.copied { background: var(--done); color: var(--paper); }
     return div.innerHTML;
   }
 
-  // "Tell Claude" box: a prompt to copy into the Claude session.
+  // "Tell your assistant" box: a prompt to copy into the agent session.
   function tell(cmd, note, extra) {
-    return `<div class="tell"><div class="tell-label">Tell Claude</div>
+    return `<div class="tell"><div class="tell-label">Tell your assistant</div>
       <div class="tell-row"><code class="tell-cmd">${esc(cmd)}</code><button class="copy" data-copy="${esc(cmd)}">Copy</button></div>
       ${note ? `<div class="tell-note">${note}</div>` : ""}
       ${extra ? `<div class="tell-alt">${extra}</div>` : ""}</div>`;
@@ -327,7 +327,7 @@ button.copy.copied { background: var(--done); color: var(--paper); }
     if (p.kind === "cover") {
       cls += " cover";
       html = `<div class="kicker">Build booklet</div><h1>${esc(p.title)}</h1>${md(p.md)}` +
-             (nextStep ? tell("next", `Paste this into Claude to see your next step (${esc(nextStep.num)}: ${esc(nextStep.title)}).`) : "");
+             (nextStep ? tell("next", `Paste this into your assistant to see your next step (${esc(nextStep.num)}: ${esc(nextStep.title)}).`) : "");
     } else if (p.kind === "coverpage") {
       html = `<div class="kicker">${esc(data.cover.title)}</div><h2>${esc(p.title)}</h2>${md(p.md)}`;
     } else if (p.kind === "section") {
@@ -339,7 +339,7 @@ button.copy.copied { background: var(--done); color: var(--paper); }
       if (s.status === "outlined") {
         html += `<div class="outlined-note">This section's steps get written when you get close, against your code as it is by then.</div>` +
                 (s.current || (nextStep == null) || data.sections.find(x => x.status !== "done") === s
-                  ? tell("next", `Claude will write this section's steps and show you the first one.`) : "");
+                  ? tell("next", `Your assistant will write this section's steps and show you the first one.`) : "");
       }
     } else if (p.kind === "step") {
       const secSteps = p.sec.pages.filter(x => x.kind === "step");
@@ -348,19 +348,19 @@ button.copy.copied { background: var(--done); color: var(--paper); }
              `<div class="kicker">${typeLabel(p.sec)} ${p.sec.num} · ${title(p.sec.title)}</div>
               <div class="stephead"><div class="stepnum">${esc(p.num)}</div><h2>${title(p.title)}</h2></div>${md(p.md)}`;
       if (p.done) {
-        html += `<label class="selftick confirmed"><input type="checkbox" checked disabled> Checked by Claude</label>`;
+        html += `<label class="selftick confirmed"><input type="checkbox" checked disabled> Checked by your assistant</label>`;
       } else {
         html += `<label class="selftick"><input type="checkbox" data-step="${esc(p.num)}" ${isSelf(p) ? "checked" : ""}> I've done this</label>`;
         if (isLast) {
           html += tell(`check section ${p.sec.num}`,
-            `This is the last step in Section ${p.sec.num}. When you've finished, paste this into Claude. It reviews every step in the section, ticks them off, and writes your recap.`);
+            `This is the last step in Section ${p.sec.num}. When you've finished, paste this into your assistant. It reviews every step in the section, ticks them off, and writes your recap.`);
         }
       }
     } else if (p.kind === "recap") {
       cls += " recap" + (p.written ? "" : " unwritten");
       html = `<div class="kicker">${p.written ? "Recap · what you built" : "Recap"}</div><h2>${esc(p.title)}</h2>` +
              (p.written ? md(p.md) : `<div class="outlined-note">This page gets written from your actual code once every step in this section is done.</div>` +
-               tell(`check section ${p.sec.num}`, `Finished every step in this section? Paste this into Claude. It reviews the section, ticks the steps off, and writes this recap.`));
+               tell(`check section ${p.sec.num}`, `Finished every step in this section? Paste this into your assistant. It reviews the section, ticks the steps off, and writes this recap.`));
     } else {
       html = `<div class="kicker">${typeLabel(p.sec)} ${p.sec.num}</div><h2>${esc(p.title)}</h2>${md(p.md)}`;
     }

@@ -8,7 +8,7 @@ Turns coding work into an instruction booklet you build yourself, structured lik
 - a **hint ladder** (nudge → approach → key code) instead of answers
 - a **recap** after each section, written from your actual code
 
-Then it coaches you while you build. Paste these into Claude:
+Then it coaches you while you build. Paste these into your coding agent:
 
 | Command | What happens |
 | --- | --- |
@@ -17,7 +17,9 @@ Then it coaches you while you build. Paste these into Claude:
 | `check section 1` | Reviews every step in the section, lists anything that's off as pointers rather than fixes, ticks the steps that pass, and writes the recap. |
 | `check 1.2` | Optional spot check on one step. |
 
-**Works with:** Claude Code. The booklet format and renderer are plain Markdown and Python. The Claude-specific parts are the `CLAUDE.md` offer and "Tell Claude" wording in the viewer.
+**Works with:** Claude Code (tested). It should also work with other agents that load `SKILL.md` skills and can run shell commands, such as Codex CLI, but that's untested. The booklet format and renderer are plain Markdown and Python, and the note that keeps new sessions in booklet mode goes into `CLAUDE.md`, `AGENTS.md`, or both.
+
+Say "stop using the booklet" to remove that note. The `booklet/` folder stays, so you can pick it back up later or delete it yourself.
 
 ## Use
 

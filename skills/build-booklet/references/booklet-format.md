@@ -21,6 +21,7 @@ Contents:
 3. Recap template
 4. Design section and prototype section
 5. Feature booklet cover differences
+6. booklet/README.md
 
 ---
 
@@ -65,7 +66,7 @@ Status is one of **Done**, **In Progress** (the first unfinished section) or **U
 
 ## How to build with me
 
-Work through a section's steps on your own. Each step has a **Check** you can confirm yourself; tick "I've done this" in `booklet/view.html` and keep going. At the end of the section, paste the **Tell Claude** prompt into Claude:
+Work through a section's steps on your own. Each step has a **Check** you can confirm yourself; tick "I've done this" in `booklet/view.html` and keep going. At the end of the section, paste the **Tell your assistant** prompt into your coding assistant:
 - `check section 1`: I review every step, tick them off, and write your recap
 - `next`: show your next step
 - `hint 1.2`: the next hint for a step (nudge → approach → key code)
@@ -174,7 +175,7 @@ Optional per-step extras, used sparingly:
 - `**Try it:**` a moment to stop and look: run the app and try one specific thing.
 - `**Watch out:**` a known trap in one line (better placed in hint 2 unless it would silently break something).
 
-Don't write a "Tell Claude" line in the Markdown. The viewer adds it to each step automatically.
+Don't write a "Tell your assistant" line in the Markdown. The viewer adds it to each step automatically.
 
 ---
 
@@ -264,3 +265,22 @@ Same as `cover.md`, with these changes:
 - The preview shows **before → after** (what the user sees or does today vs. with the feature).
 - Add **Connects to:** listing the existing files/modules the feature plugs into.
 - Usually 1–3 sections. Skip "Builder notes" if the main booklet has them; link to it instead.
+
+---
+
+## 6. `booklet/README.md`
+
+Written once, when the folder is created, and not changed after. Git hosts show it when someone opens the folder, so it's what a collaborator sees first. Fill in only the project name.
+
+```markdown
+# Build booklet
+
+This folder is a step-by-step build plan for <project name>, made with the
+[build-booklet](https://github.com/aventide/agent-skills/tree/main/skills/build-booklet)
+skill. The person building the project follows it by hand, one step at a time,
+with a coding agent coaching them.
+
+- **To read it,** open `view.html` in a browser, or start with `cover.md`.
+- **`view.html` is generated** from the Markdown files, so don't edit it by hand.
+- **Not building along?** You can ignore this folder. It doesn't affect the code.
+```

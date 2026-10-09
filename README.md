@@ -6,7 +6,7 @@ My custom skills for AI coding agents. Each skill is a folder with a `SKILL.md` 
 
 | Skill | What it does | Works with |
 | --- | --- | --- |
-| [build-booklet](skills/build-booklet/) | Turns a project, or one feature, into a step-by-step instruction booklet you build by hand, then coaches you through it: next step, hints, checking your work. | Claude Code |
+| [build-booklet](skills/build-booklet/) | Turns a project, or one feature, into a step-by-step instruction booklet you build by hand, then coaches you through it: next step, hints, checking your work. | Claude Code (tested); other `SKILL.md` agents untested |
 
 ## Install
 
